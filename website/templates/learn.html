@@ -1,0 +1,177 @@
+{% extends "base.html" %} {% block header %} 
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/tabs_style.css') }}">
+<script>
+ function change_tab(id)
+ {
+   document.getElementById("page_content").innerHTML=document.getElementById(id+"_desc").innerHTML;
+   document.getElementById("page1").className="notselected";
+   document.getElementById("page2").className="notselected";
+   document.getElementById("page3").className="notselected";
+   document.getElementById("page4").className="notselected";
+   document.getElementById("page5").className="notselected";
+   document.getElementById("page6").className="notselected";
+   document.getElementById("page7").className="notselected";
+   document.getElementById(id).className="selected";
+ }
+</script>
+ {% endblock %}
+{% block title %}Learn{% endblock %} {% block content%}
+ <h2>Hello {{ user.first_name }}!</h2>
+
+<div id="main_content">
+
+ <li class="notselected" id="page1" onclick="change_tab(this.id);">Step 1</li>
+ <li class="notselected" id="page2" onclick="change_tab(this.id);">Step 2</li>
+ <li class="notselected" id="page3" onclick="change_tab(this.id);">Step 3</li>
+ <li class="notselected" id="page4" onclick="change_tab(this.id);">Step 4</li>
+ <li class="notselected" id="page5" onclick="change_tab(this.id);">Step 5</li>
+ <li class="notselected" id="page6" onclick="change_tab(this.id);">Step 6</li>
+ <li class="notselected" id="page7" onclick="change_tab(this.id);">Step 7</li>
+ 
+ <div class='hidden_desc' id="page1_desc">
+  <h2>Step 1: Data gathering</h2>
+  The first step in a machine learning problem is to find the dataset. According to the task which is classification problem, since it is categorized as 
+   <b>supervised learning </b>, we need a labaled dataset. The dataset can be find <a href="https://www.kaggle.com/datasets/arshid/iris-flower-dataset" target="_blank">kaggle</a> or <a href="https://scikit-learn.org/stable/auto_examples/datasets/plot_iris_dataset.html " target="_blank">Python scikit learn package</a>. <br> <br>
+   <p><i>Required action: </i> Go ahead and download the dataset from the first link. </p>
+ </div>
+
+ <div class='hidden_desc' id="page2_desc">
+  <h2>Step 2: Data handling  </h2>
+  In the second step of the data preprocessing stage, we need to look after dataset conditions. The things we need to look are missing data, outlier detection and mapping the dataset to a limited range (0,1) or (-1,1) which helps the calculation in the modeling stage. 
+  <br> <br>
+   <p><i>Required action 1: </i> Go through the dowloaded directory and open the csv file. Try to look for any inconsistency in the data. </p>
+   <p><i>Required action 2: </i> Load the dataset using the scikit learn package and run the following code. </p>
+ <figure>
+  <figcaption>Sample python code</figcaption>
+  <pre>
+    <code>
+      from sklearn.preprocessing import MinMaxScaler
+      import pandas as pd # library for data analsysis
+      import numpy as np # library to handle data in a vectorized manner
+
+      # import the feature engineered dataset
+      df = pd.read_csv('<'location'>', index_col=None, skiprows=[1]) % already satisfied if you run in here (iris_df)
+      iris_df.columns=['sepal_len', 'sepal_wid', 'petal_len', 'petal_wid', 'target']
+      iris_df.dropna(how="all", inplace=True) # remove any empty lines
+
+      df = df.drop(df[(df[<'feature'>] >= <1.5 IRQ >)].index)
+      scaler_x = MinMaxScaler(feature_range=(0,1))
+      X_scaled = scaler_x.fit_transform(X)
+    </code>
+  </pre>
+</figure>
+ </div>
+ 
+ <div class='hidden_desc' id="page3_desc">
+  <h2>Step 3: Feature selection</h2>
+  In the last step of preprocessing, we need to come up with the features that best describe our model. We can use domain knowledge or infomration from the correlation matrix to get this information. There might be some situation, where a function of some input provide a better feature, which is called feature engineering. We need to split our dataset to two distinct set: train and test, each of which should equally distribute over the span of dataset, but train size is usually 2.3 times bigger than the test. 
+  <br> <br>
+   <p><i>Required action 1: </i> Find the useful features for the model</p>
+   <p><i>Required action 2: </i> Split the dataset to train and test with ratio 7 and 3 respectively. </p>
+   <figure>
+  <figcaption>Sample Python code</figcaption>
+  <pre>
+    <code>
+      from sklearn.model_selection import train_test_split
+
+      X = df.drop(columns={'<'not useful inputs'>'}) % or iris_X=iris_df.iloc[:,['<'# relevent colomn'>']]
+      y = df['<'target feature'>']
+      df = df.assign('<'new feature'>'=lambda x: (x.'<'feature1'>' '<'some operation'>'' x.'<'feature2'>'))
+
+      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=2)
+
+    </code>
+  </pre>
+</figure>
+ </div>
+
+
+ <div class='hidden_desc' id="page4_desc">
+  <h2>Step 4: Model selection</h2>
+  In the first stage of model selection, you need to come up with a model. According to our task of classification, we use KNN method. There is a method in scikit learn called  <a href="https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html" target="_blank">KNeighborsClassifier</a> that we will going to use in this project.  We need to define three parameters: number of neighbors metric, and p. Metric is the distance metric, which by defult is minkowski and the p can be 1 for manhattan distance (l1) and 2 for  euclidean distance (l2).
+  <br> <br>
+   <p><i>Required action 1: </i> Import the classification technique. </p>
+   <p><i>Required action 2: </i> Find the values for parameters. </p>
+   <figure>
+  <figcaption>Sample Python code</figcaption>
+  <pre>
+    <code>
+      from sklearn.neighbors import KNeighborsClassifier
+
+      classifier = KNeighborsClassifier(n_neighbors=?, metric=?, p=?)
+
+    </code>
+  </pre>
+</figure>
+ </div>
+ 
+ <div class='hidden_desc' id="page5_desc">
+  <h2>Step 5: Optimization</h2>
+  In this step we need to declare the optimization technique and the cost function. According to our example, for the multi-class classification problem the cost function is cross entropy function. For the KNN, the cost function is to minimize the number of misclassified by finding the centers for each class. 
+ </div>
+
+
+  <div class='hidden_desc' id="page6_desc">
+  <h2>Step 6: Training and evaluation</h2>
+  After we have find an optimization technique and a cost function, now we can try to train the mode. There are different interative appraoch for optimizing a convex cost function. In our example, we do not need to define the iterative method, as there fit method can easily provide us the solution. Evaluation techniques is used to monitor over fitting. Yet, in this example we do not need to concern about it as the fit will train the model with adequate epochs. 
+  <br> <br>
+   <p><i>Required action: </i> Train the model.  </p>
+   <figure>
+  <figcaption>Sample Python code</figcaption>
+  <pre>
+    <code>
+      classifier.fit(X_train, y_train)
+    </code>
+  </pre>
+</figure>
+ </div>
+
+ <div class='hidden_desc' id="page7_desc">
+  <h2>Step 7: Testing </h2>
+  Now that we have our trained model, we need to see how our model reacted. For this end, we are going to use our untoched test dataset to see our overal model performance. 
+  <br> <br>
+   <p><i>Required action 1: </i> Find the prediction for test dataset  </p>
+   <p><i>Required action 2: </i> Provide a metric to compute accuracy and compute it for this example.  </p>
+   <figure>
+  <figcaption>Sample Python code</figcaption>
+  <pre>
+    <code>
+      from sklearn.metrics import accuracy_score
+
+      y_pred = classifier.predict(X_test)
+      accuracy = accuracy_score(y_true=y_test, y_pred=y_pred)
+      print("Accuracy: % {:10.2f}".format(accuracy * 100))
+    </code>
+  </pre>
+</figure>
+ </div>
+
+
+ <div id="page_content">
+  <h2>Introdoction</h2>
+  In this tutorial you gonna apply classification task to a IRIS data set. For any machine learning tasks, there are a few steps need to be complete. For this end, the steps are presented on the top tabs. Choose each step to manuever to corresponding stage. The steps are as  follows:
+  <ul>
+  <li  > Preprocessing:
+    <ul>
+      <li  > Step 1: Data gathering </li> 
+      <li > Step 2: Data handling (missing data, outlier, whitenning) </li> 
+      <li  > Step 3: Feature selection (feature engineering, dimension reduction) </li> 
+  </ul>
+    </li>
+  <li > Modeling
+    <ul>
+      <li  > Step 4: Model selection </li> 
+      <li > Step 5: Optimization (cost function, gradient decent)</li> 
+      <li  > Step 6: Training and evaluation</li> 
+    </ul>
+  </li>
+  <li > Step 7: Testing
+  </li>
+</ul>
+ </div>
+</div>
+
+<p><a href="/run/iris" target="_blank">Run your code here</a></p>
+
+{% endblock %}

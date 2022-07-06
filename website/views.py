@@ -24,6 +24,17 @@ def home():
     return render_template("home.html", user=current_user)
 
 
+@views.route('/learn', methods=['GET'])
+@login_required
+def learn():
+    return render_template("learn.html", user=current_user)
+
+
+@views.route('/run/iris', methods=['GET'])
+@login_required
+def runiris():
+    return render_template("run.html", user=current_user, type='iris')
+
 @views.route('/delete-note', methods=['POST'])
 def delete_note():
     note = json.loads(request.data)
