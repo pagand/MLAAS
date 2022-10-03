@@ -10,3 +10,6 @@ source venv/bin/activate
 Pip install -r requirements.txt
 
 
+The template directory includes the google colab files for the expert solution.
+
+
