@@ -29,7 +29,6 @@ logger = logging.getLogger()
 
 
 
-
 ### --------------------------------------------------- Functions def ---------------------------------------------- ###
 # Image Manipulation
 @st.cache
