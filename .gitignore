@@ -4,3 +4,5 @@
 
 # ignore the venv
 venv/
+EDA/venv/
+EDA/.vscode
