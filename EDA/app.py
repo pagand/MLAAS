@@ -49,20 +49,11 @@ def read_csv(DATA_URL) -> pd.DataFrame:
     """
     return pd.read_csv(DATA_URL)
 
-def user_input_features():
-    # if dataset == "Iris":
-    #     sepal_length = st.sidebar.slider('Sepal length', 4.3, 7.9, 5.4)
-    #     sepal_width = st.sidebar.slider('Sepal width', 2.0, 4.4, 3.4)
-    #     petal_length = st.sidebar.slider('Petal length', 1.0, 6.9, 1.3)
-    #     petal_width = st.sidebar.slider('Petal width', 0.1, 2.5, 0.2)
-    #     data = {'sepal_length': sepal_length,
-    #             'sepal_width': sepal_width,
-    #             'petal_length': petal_length,
-    #             'petal_width': petal_width}
+def user_input_features(features):
     data = {}
-    for i, j in enumerate(source_df.columns[0:-1]):
-        var0 = st.sidebar.slider(j,float(source_df[j].min()), float(source_df[j].max()), float(source_df[j].mean()))
-        print(float(source_df[j].mean()))
+    for _, j in enumerate(features.columns):
+        var0 = st.sidebar.slider(j,float(features[j].min()), float(features[j].max()), float(features[j].mean()))
+        # print(float(features[j].mean()))
         data[j] = var0
 
     features = pd.DataFrame(data, index=[0])
@@ -72,7 +63,7 @@ def user_input_features():
     return features, clfs
 
 @st.cache(persist=True)
-def compute_predition(clfs, source_df, df_test):
+def compute_predition(clfs, features, labels, df_test):
     models = []
     predictions = {}
     if 'Random Forest' in clfs:
@@ -90,19 +81,12 @@ def compute_predition(clfs, source_df, df_test):
     if 'linear discriminant' in clfs:
         models.append(('LDA', LinearDiscriminantAnalysis()))
 
-    # features = source_df[["sepal.length", "sepal.width", "petal.length", "petal.width"]].values
-    features = source_df.iloc[:, :-1]
-    # labels = source_df["variety"].values
-    labels = source_df.iloc[:, -1]
-
     # Train on all data
-    X = features
-    Y = labels
     # X, x_test, Y, y_test = train_test_split(features, labels, train_size=0.7, random_state=1)
 
 
     for name, model in models:
-        model.fit(X, Y)
+        model.fit(features, labels)
         prediction = model.predict(df_test)
         prediction_proba = model.predict_proba(df_test)
         predictions[name] = (prediction_proba[0], prediction[0])
@@ -155,6 +139,50 @@ def show_histogram_plot(selected_species_df: pd.DataFrame):
     st.plotly_chart(fig2)
 
 
+def _handle_missing(features, labels):
+    appraoch = st.sidebar.radio('Handle missing data',('impute with mean','Replace with zero', 'drop the entery'))
+    if appraoch == 'impute with mean':
+        # approach 1 (imputing with the mean)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+        new_features = features.fillna(features.mean())
+        new_labels = labels.fillna(labels.mean())
+    elif appraoch == 'drop the entery':
+        # approach 2 (delete the row of the nan values)
+        #TODO consider changing the output size as well
+        dum = pd.concat([features, labels], axis=1, join='inner').dropna(axis=0)
+        new_features = dum.iloc[:, :-1]
+        new_labels = dum.iloc[:, -1]
+        del dum
+    else:
+        # approach 3 (replace it with zero)
+        new_features = features.fillna(0)
+        new_labels = labels.fillna(0)
+    return new_features, new_labels
+
+def handle_io(source_df):
+    features = source_df.iloc[:, :-1]
+    # check if all the colomn are numeric
+    for col in features.columns:
+        if not pd.api.types.is_numeric_dtype(features[col]):
+            st.warning("Colomn <{}> is not numeric. We have mapped it to numeric values.".format(col))
+            n = features.groupby(col).ngroups
+            Map = {key: index/(n-1) for index, key in enumerate(features.groupby(col).groups.keys())}
+            features[col] = features[col].map(Map, na_action=None).astype(float)
+
+
+    labels = source_df.iloc[:, -1]
+    # check if all the colomn are numeric
+    if not pd.api.types.is_numeric_dtype(labels):
+        st.warning("Output value is not numeric. We have mapped it to numeric values.")
+        Map = {key: index/(labels.groupby(level=0).ngroups-1) for index, key in enumerate(labels.groupby(level=0).groups.keys())}
+        labels = labels.map(Map, na_action=None).astype(float)
+
+    if labels.isnull().values.any() or features.isnull().values.any():
+        st.warning("There are null values in your dataset. Please choose a method in the side bar to handle it.")
+        features, labels = _handle_missing(features, labels)
+
+    return  features, labels
+
+
 def show_machine_learning_model(source_df: pd.DataFrame):
     """Component to show the performance of an ML Algo trained on the iris data set
 
@@ -165,10 +193,10 @@ def show_machine_learning_model(source_df: pd.DataFrame):
         NotImplementedError: Raised if a not supported model is selected
     """
     st.header("Machine Learning models")
-    # features = source_df[["sepal.length", "sepal.width", "petal.length", "petal.width"]].values
-    # labels = source_df["variety"].values
-    features = source_df.iloc[:, :-1]
-    labels = source_df.iloc[:, -1]
+
+    # Handle missing data and non-numeric values
+    features, labels = handle_io(source_df)
+
     ratio = st.sidebar.slider('Train-test ratio', 0.0, 1.0, 0.7)
     x_train, x_test, y_train, y_test = train_test_split(
         features, labels, train_size=ratio, random_state=1
@@ -203,18 +231,20 @@ def show_machine_learning_model(source_df: pd.DataFrame):
 
 ### --------------------------------------------------- MAIN ------------------------------------------------------- ###
 st.title("DaTu EDA/MLAAS toolbox")
-st.info("Please choose your dataset and the task from the left bar menu.")
+st.sidebar.info("Please choose your dataset and the task.")
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.sidebar.header('User input')
-dataset = st.sidebar.radio('Please select your dataset',('Iris','PIMA', 'External'))
+dataset = st.sidebar.radio('Please select your dataset',('Iris','PIMA', 'Wine', 'External'))
 ### --------------------------------------------------- Dataset ---------------------------------------------------- ###
 DATA_URL = ""
 if dataset == 'Iris':
     DATA_URL = "https://raw.githubusercontent.com/MarcSkovMadsen/awesome-streamlit/master/gallery/iris_classification/iris.csv"
 elif dataset == 'PIMA':
     DATA_URL = "https://raw.githubusercontent.com/npradaschnor/Pima-Indians-Diabetes-Dataset/master/diabetes.csv"
+elif dataset == 'Wine':
+    DATA_URL = "https://raw.githubusercontent.com/reubengazer/Wine-Quality-Analysis/master/winequalityN.csv"
 else:
     type = st.sidebar.radio('Please select', ('Upload', 'URL'))
     if type == 'Upload':
@@ -329,27 +359,30 @@ if task == 'Visualization':
 
 
 
-### --------------------------------------------------- Prediction Task ------------------------------------------- ###
+### --------------------------------------------------- Modeling Task ------------------------------------------- ###
 if task =='Modeling':
     show_machine_learning_model(source_df)
 
 
 ### --------------------------------------------------- Prediction Task ------------------------------------------- ###
 if task =='Prediction':
-    st.sidebar.subheader('Input features for prediction')
-    df_test, clfs = user_input_features()
+    st.sidebar.subheader('Prediction section')
+    # pulished features/target
+    features, labels = handle_io(source_df)
+    df_test, clfs = user_input_features(features)
     st.subheader('User Input parameters')
     st.write(df_test)
 
 
 
     st.subheader('Prediction Probability')
-    predictions = compute_predition(clfs, source_df, df_test)
+    predictions = compute_predition(clfs, features, labels, df_test)
 
     #st.write(predictions)
     #predict = [dataset.target_names]
     # predict = [source_df.groupby(source_df.columns[-1]).size().index]
-    predict = [source_df.iloc[:, -1].unique()]
+    # predict = [source_df.iloc[:, -1].unique()]
+    predict = [labels.unique()]
     ind = ["Class label"]
     predict2 = []
     for i, p in predictions.items():
