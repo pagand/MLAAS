@@ -171,10 +171,11 @@ def handle_io(source_df):
 
     labels = source_df.iloc[:, -1]
     # check if all the colomn are numeric
-    if not pd.api.types.is_numeric_dtype(labels):
-        st.warning("Output value is not numeric. We have mapped it to numeric values.")
-        Map = {key: index/(labels.groupby(level=0).ngroups-1) for index, key in enumerate(labels.groupby(level=0).groups.keys())}
-        labels = labels.map(Map, na_action=None).astype(float)
+    # if not pd.api.types.is_numeric_dtype(labels):
+    #     print('bye')
+    #     st.warning("Output value is not numeric. We have mapped it to numeric values.")
+    #     Map = {key: index/(labels.groupby(level=0).ngroups-1) for index, key in enumerate(labels.groupby(level=0).groups.keys())}
+    #     labels = labels.map(Map, na_action=None).astype(float)
 
     if labels.isnull().values.any() or features.isnull().values.any():
         st.warning("There are null values in your dataset. Please choose a method in the side bar to handle it.")
@@ -201,6 +202,7 @@ def show_machine_learning_model(source_df: pd.DataFrame):
     x_train, x_test, y_train, y_test = train_test_split(
         features, labels, train_size=ratio, random_state=1
     )
+
     alg = ["Random Forest", "Logistic Regression", "Decision Tree", "Support Vector Machine", "Naive Bayes",
            "K Nearest Neighbour" , "linear discriminant"]
     classifier = st.selectbox("Which algorithm?", alg)
