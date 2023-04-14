@@ -8,6 +8,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from sklearn.metrics import roc_auc_score, auc , roc_curve
+from sklearn.preprocessing import label_binarize
 
 import numpy as np
 import os
@@ -229,7 +231,48 @@ def show_machine_learning_model(source_df: pd.DataFrame):
     st.write("Accuracy: ", acc.round(2))
     pred_model = model.predict(x_test)
     cm_model = confusion_matrix(y_test, pred_model)
+
+    classes = source_df.iloc[:, -1].unique()
+    
+    
+    ytest = label_binarize(y_test, classes=classes)
+    ypred = label_binarize(pred_model, classes=classes)
+    lr_auc = roc_auc_score(ytest, ypred)
+    st.write('ROC AUC score:', lr_auc)
+
     st.write("Confusion matrix: ", cm_model)
+    
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(ytest.shape[-1]):
+        fpr[i], tpr[i], _ = roc_curve(ytest[:, i], ypred[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+    
+
+    # Compute micro-average ROC curve and ROC area
+    fpr["micro"], tpr["micro"], _ = roc_curve(ytest.ravel(), ypred.ravel())
+    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+    # Plot ROC curve
+    plt.figure()
+    plt.plot(fpr["micro"], tpr["micro"],
+            label='micro-average ROC curve (area = {0:0.2f})'
+                ''.format(roc_auc["micro"]))
+    for i in range(ytest.shape[-1]):
+        plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'
+                                    ''.format(i, roc_auc[i]))
+
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('micro-average ROC curve')
+    plt.legend(loc="lower right")
+    st.pyplot()
+
 
 ### --------------------------------------------------- MAIN ------------------------------------------------------- ###
 st.title("DaTu EDA/MLAAS toolbox")
@@ -238,7 +281,7 @@ st.sidebar.info("Please choose your dataset and the task.")
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.sidebar.header('User input')
-dataset = st.sidebar.radio('Please select your dataset',('Iris','PIMA', 'Wine', 'External'))
+dataset = st.sidebar.radio('Please select your dataset',('Iris','PIMA', 'Wine', 'Helth insurance', 'External'))
 ### --------------------------------------------------- Dataset ---------------------------------------------------- ###
 DATA_URL = ""
 if dataset == 'Iris':
@@ -247,6 +290,8 @@ elif dataset == 'PIMA':
     DATA_URL = "https://raw.githubusercontent.com/npradaschnor/Pima-Indians-Diabetes-Dataset/master/diabetes.csv"
 elif dataset == 'Wine':
     DATA_URL = "https://raw.githubusercontent.com/reubengazer/Wine-Quality-Analysis/master/winequalityN.csv"
+elif dataset == 'Helth insurance':
+    DATA_URL = "https://raw.githubusercontent.com/datu-ca/ML/main/datasets/classification/health_insurance/train.csv?token=GHSAT0AAAAAAB4SCUVR4VWD5IGEHXAW6LWYY7FZDDQ"
 else:
     type = st.sidebar.radio('Please select', ('Upload', 'URL'))
     if type == 'Upload':
