@@ -8,7 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-from sklearn.metrics import roc_auc_score, auc , roc_curve
+from sklearn.metrics import roc_auc_score, auc , roc_curve, precision_score, recall_score, f1_score
 from sklearn.preprocessing import label_binarize
 
 import numpy as np
@@ -201,11 +201,15 @@ def show_machine_learning_model(source_df: pd.DataFrame):
     features, labels = handle_io(source_df)
 
     ratio = st.sidebar.slider('Train-test ratio', 0.0, 1.0, 0.7)
+    sampling = st.sidebar.radio('Sampling method',('None','class weight','Random under sampler', 'Random over sampler','SMOTE'))
+    if sampling !=  'None':
+        st.info("TODO: to be completed!")
+
     x_train, x_test, y_train, y_test = train_test_split(
         features, labels, train_size=ratio, random_state=1
     )
 
-    alg = ["Random Forest", "Logistic Regression", "Decision Tree", "Support Vector Machine", "Naive Bayes",
+    alg = ["Logistic Regression", "Random Forest",  "Decision Tree", "Support Vector Machine", "Naive Bayes",
            "K Nearest Neighbour" , "linear discriminant"]
     classifier = st.selectbox("Which algorithm?", alg)
 
@@ -227,8 +231,7 @@ def show_machine_learning_model(source_df: pd.DataFrame):
         raise NotImplementedError()
 
     model.fit(x_train, y_train)
-    acc = model.score(x_test, y_test)
-    st.write("Accuracy: ", acc.round(2))
+    
     pred_model = model.predict(x_test)
     cm_model = confusion_matrix(y_test, pred_model)
 
@@ -237,10 +240,17 @@ def show_machine_learning_model(source_df: pd.DataFrame):
     
     ytest = label_binarize(y_test, classes=classes)
     ypred = label_binarize(pred_model, classes=classes)
-    lr_auc = roc_auc_score(ytest, ypred)
-    st.write('ROC AUC score:', lr_auc)
 
-    st.write("Confusion matrix: ", cm_model)
+    d = {'Accuracy': model.score(x_test, y_test).round(4),
+          'AUC score': roc_auc_score(ytest, ypred).round(4),
+          'Precision':precision_score(ytest, ypred, average='micro').round(4),
+          'Recall':recall_score(ytest, ypred, average='micro').round(4),
+          'F1 score': f1_score(ytest, ypred, average='micro').round(4)}
+    st.write("Metrics ")
+    st.table(pd.DataFrame(data=d, index =[0]))
+
+    st.write("Confusion matrix ", cm_model)
+    st.write("ROC curve ")
     
     # Compute ROC curve and ROC area for each class
     fpr = dict()
@@ -291,7 +301,7 @@ elif dataset == 'PIMA':
 elif dataset == 'Wine':
     DATA_URL = "https://raw.githubusercontent.com/reubengazer/Wine-Quality-Analysis/master/winequalityN.csv"
 elif dataset == 'Helth insurance':
-    DATA_URL = "https://raw.githubusercontent.com/datu-ca/ML/main/datasets/classification/health_insurance/train.csv?token=GHSAT0AAAAAAB4SCUVR4VWD5IGEHXAW6LWYY7FZDDQ"
+    DATA_URL = "https://raw.githubusercontent.com/pagand/MLAAS/master/datasets/healthinsurance/train.csv"
 else:
     type = st.sidebar.radio('Please select', ('Upload', 'URL'))
     if type == 'Upload':
