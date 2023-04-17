@@ -15,7 +15,7 @@ The template directory includes the google colab files for the expert solution.
 
 ---
 
-[Exploratory data analysis, EDA ](https://github.com/pagand/MLAAS/tree/master/EDA)
+[Exploratory data analysis: EDA ](https://github.com/pagand/MLAAS/tree/master/EDA)
 
 
 Demo: version 1.2
