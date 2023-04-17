@@ -1,4 +1,3 @@
-Latest version: 1.2
 Here is the code for the MLAAS
 This code start having the user register and login/logout
 
@@ -15,6 +14,7 @@ The template directory includes the google colab files for the expert solution.
 
 
 
+(Exploratory data analysis, EDA )[https://github.com/pagand/MLAAS/tree/master/EDA]
 
 Demo: version 1.2
 
