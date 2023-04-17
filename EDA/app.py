@@ -319,10 +319,10 @@ if DATA_URL:
 ### --------------------------------------------------- Task  ------------------------------------------------------ ###
 task = ''
 if dataset == 'Iris':
-    task = st.sidebar.radio('Please select your task',('Data review','Visualization', 'Modeling','Prediction', 'Image manipulation'))
+    task = st.sidebar.radio('Please select your task',('Data review','Visualization', 'Classification modeling','Classification prediction', 'Image manipulation'))
 elif DATA_URL:
     task = st.sidebar.radio('Please select your task',
-                            ('Data review', 'Visualization', 'Modeling', 'Prediction'))
+                            ('Data review', 'Visualization', 'Classification modeling', 'Classification prediction'))
 
 st.sidebar.write("""
 ---
@@ -417,12 +417,12 @@ if task == 'Visualization':
 
 
 ### --------------------------------------------------- Modeling Task ------------------------------------------- ###
-if task =='Modeling':
+if task =='Classification modeling':
     show_machine_learning_model(source_df)
 
 
 ### --------------------------------------------------- Prediction Task ------------------------------------------- ###
-if task =='Prediction':
+if task =='Classification prediction':
     st.sidebar.subheader('Prediction section')
     # pulished features/target
     features, labels = handle_io(source_df)
