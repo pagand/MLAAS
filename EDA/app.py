@@ -11,6 +11,9 @@ from sklearn.svm import SVC
 from sklearn.metrics import roc_auc_score, auc , roc_curve, precision_score, recall_score, f1_score
 from sklearn.preprocessing import label_binarize
 
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler, SMOTE
+
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -42,6 +45,7 @@ def load_image(img):
 def show_html(HtmlFile):
     return HtmlFile.read() 
 
+
 @st.cache
 def read_csv(DATA_URL) -> pd.DataFrame:
     """## Iris DataFrame
@@ -60,11 +64,11 @@ def user_input_features(features):
 
     features = pd.DataFrame(data, index=[0])
     clfs = []
-    clfs = st.multiselect('Select models', ('Random Forest', 'Logistic Regression', "Support Vector", "Naive Bayes",
-                                            "Decision Tree", "K Nearest Neighbour", "linear discriminant"))
+    clfs = st.multiselect('Select models', ( 'Logistic Regression', 'Random Forest',"Support Vector", "Naive Bayes",
+                                            "Decision Tree", "K Nearest Neighbour", "Linear discriminant", 'Latest learned model'))
     return features, clfs
 
-@st.cache(persist=True)
+
 def compute_predition(clfs, features, labels, df_test):
     models = []
     predictions = {}
@@ -80,8 +84,12 @@ def compute_predition(clfs, features, labels, df_test):
         models.append(('CART', DecisionTreeClassifier()))
     if 'K Nearest Neighbour' in clfs:
         models.append(('KNN', KNeighborsClassifier()))
-    if 'linear discriminant' in clfs:
+    if 'Linear discriminant' in clfs:
         models.append(('LDA', LinearDiscriminantAnalysis()))
+    if 'Latest learned model' in clfs:
+        st.info("TODO")
+
+    
 
     # Train on all data
     # X, x_test, Y, y_test = train_test_split(features, labels, train_size=0.7, random_state=1)
@@ -163,13 +171,15 @@ def _handle_missing(features, labels):
 def handle_io(source_df):
     features = source_df.iloc[:, :-1]
     # check if all the colomn are numeric
+    cols = []
     for col in features.columns:
         if not pd.api.types.is_numeric_dtype(features[col]):
-            st.warning("Colomn <{}> is not numeric. We have mapped it to numeric values.".format(col))
+            cols.append(col)
             n = features.groupby(col).ngroups
             Map = {key: index/(n-1) for index, key in enumerate(features.groupby(col).groups.keys())}
             features[col] = features[col].map(Map, na_action=None).astype(float)
-
+    if cols:
+        st.warning("Colomn {} is/are not numeric. We have mapped it to numeric values.".format(cols))
 
     labels = source_df.iloc[:, -1]
     # check if all the colomn are numeric
@@ -202,8 +212,11 @@ def show_machine_learning_model(source_df: pd.DataFrame):
 
     ratio = st.sidebar.slider('Train-test ratio', 0.0, 1.0, 0.7)
     sampling = st.sidebar.radio('Sampling method',('None','class weight','Random under sampler', 'Random over sampler','SMOTE'))
-    if sampling !=  'None':
-        st.info("TODO: to be completed!")
+    if sampling ==  'class weight':
+        class_weight = 'balanced'
+    else:
+        class_weight = None
+
 
     x_train, x_test, y_train, y_test = train_test_split(
         features, labels, train_size=ratio, random_state=1
@@ -213,16 +226,21 @@ def show_machine_learning_model(source_df: pd.DataFrame):
            "K Nearest Neighbour" , "linear discriminant"]
     classifier = st.selectbox("Which algorithm?", alg)
 
+    if classifier in ["Naive Bayes", "K Nearest Neighbour","linear discriminant" ] and \
+            sampling == 'class weight':
+        st.error("Classifier '{}' can not have 'class weight' as a sampling method!".format(classifier))
+    
+
     if classifier == "Random Forest":
-        model = RandomForestClassifier()
+        model = RandomForestClassifier(class_weight =class_weight )
     elif classifier == "Logistic Regression":
-        model =  LogisticRegression(solver='liblinear', multi_class='ovr')
+        model =  LogisticRegression(random_state=0, solver='liblinear', multi_class='ovr', class_weight =class_weight)
     elif classifier == "Support Vector Machine":
-        model = SVC(gamma='auto', probability=True)
+        model = SVC(gamma='auto', probability=True,class_weight =class_weight )
     elif classifier == "Naive Bayes":
         model = GaussianNB()
     elif classifier == "Decision Tree":
-        model = DecisionTreeClassifier()
+        model = DecisionTreeClassifier(class_weight =class_weight)
     elif classifier == "K Nearest Neighbour":
         model = KNeighborsClassifier()
     elif classifier == "linear discriminant":
@@ -230,7 +248,22 @@ def show_machine_learning_model(source_df: pd.DataFrame):
     else:
         raise NotImplementedError()
 
+    smp = None
+    if sampling =='Random under sampler':
+        smp = RandomUnderSampler()
+    elif sampling == 'Random over sampler':
+        smp = RandomOverSampler(sampling_strategy='auto')
+    elif sampling == 'SMOTE':
+        smp = SMOTE(random_state=27, sampling_strategy='minority', k_neighbors=5)
+    
+    if smp:
+        x_train, y_train = smp.fit_resample(x_train, y_train)
+
+    
     model.fit(x_train, y_train)
+
+    
+    
     
     pred_model = model.predict(x_test)
     cm_model = confusion_matrix(y_test, pred_model)
@@ -282,6 +315,7 @@ def show_machine_learning_model(source_df: pd.DataFrame):
     plt.title('micro-average ROC curve')
     plt.legend(loc="lower right")
     st.pyplot()
+
 
 
 ### --------------------------------------------------- MAIN ------------------------------------------------------- ###
