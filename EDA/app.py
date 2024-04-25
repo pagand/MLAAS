@@ -783,17 +783,17 @@ if task == "Data review":
         if dataset == "External":
             send_log(depth1 + "/external")
             file = ProfileReport(source_df)
-            file.to_file(output_file="output_{}.html".format(dataset))
+            file.to_file(output_file="output/{}.html".format(dataset))
         try:
             with open(
-                "output_{}.html".format(dataset), "r", encoding="utf-8"
+                "output/{}.html".format(dataset), "r", encoding="utf-8"
             ) as HtmlFile:
                 source_code = show_html(HtmlFile)
         except:
             file = ProfileReport(source_df)
-            file.to_file(output_file="output_{}.html".format(dataset))
+            file.to_file(output_file="output/{}.html".format(dataset))
             with open(
-                "output_{}.html".format(dataset), "r", encoding="utf-8"
+                "output/{}.html".format(dataset), "r", encoding="utf-8"
             ) as HtmlFile:
                 source_code = show_html(HtmlFile)
         components.html(source_code, height=600, scrolling=True)
