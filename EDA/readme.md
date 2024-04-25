@@ -25,6 +25,9 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## Deployment
+If you want to deploy using Nginx, you can find the information in [this link](deployments.md)
+
 ## Older version v1.2
 
 Please refer to the folder [v1.2](v1.2) to explore. 
