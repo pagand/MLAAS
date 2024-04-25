@@ -56,9 +56,6 @@ Please refer to the individual folders and files for more details about each com
 - Num recommendation n_r = {1,2,3, …}
 - Question with the correct answer as question_answer
 
-#### Output
-
-Predict score based on similarity of question and the library overview and keywords and return n_r top scored libraries
 
 #### Method
 
@@ -85,9 +82,11 @@ Predict score based on similarity of question and the library overview and keywo
 21. Sort the list of values in nums based on their occurrence in the list
 22. Return the distinct values
 
-### Mehtod 2: gensim
+#### Output
 
-## Method: gensim
+Predict score based on similarity of question and the library overview and keywords and return n_r top scored libraries
+
+### Mehtod 2: gensim
 
 #### Input
 

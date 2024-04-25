@@ -23,4 +23,11 @@ Setting up and running the MLAAS Toolkit is easy. First, clone this repository t
 We hope you find the MLAAS Toolkit useful for your machine learning and data analysis projects. Happy coding!
 
 
+## How to cite
+Make sure to star the repository. Refer to this link to get the list of other projects:
+
+[Other projects](https://upaspro.com/category/academic/project/)
+
+
+
 
