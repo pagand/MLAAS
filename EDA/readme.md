@@ -16,16 +16,10 @@ To set up the environment, follow these steps:
 ```sh
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txtHere is the code for the EDA/MLAAS Toolkit
-
-### Setting ups the environment
-```
-python3 -m venv venv
-source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Run the server
+## Run the server
 
 ```
 streamlit run app.py
@@ -33,4 +27,4 @@ streamlit run app.py
 
 ## Older version v1.2
 
-Please refer to the folder [v1.2](EDA/v1.2) to explore. 
+Please refer to the folder [v1.2](v1.2) to explore. 

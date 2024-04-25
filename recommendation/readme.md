@@ -4,9 +4,9 @@ This folder contains the files for the recommendation system. The system include
 
 ## Structure
 
-- [`engine/`](recommendation/engine): This folder contains the core recommendation engine.
-- [`synthetic_modules.csv`](recommendation/synthetic_modules.csv): This is a sample dataset used for testing the recommendation system.
-- [`v0/`](recommendation/v0): This folder contains the initial version of the recommendation system.
+- [`engine/`](engine): This folder contains the core recommendation engine.
+- [`synthetic_modules.csv`](synthetic_modules.csv): This is a sample dataset used for testing the recommendation system.
+- [`v0/`](v0): This folder contains the initial version of the recommendation system.
 
 ## Testing
 
