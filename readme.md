@@ -10,11 +10,13 @@ The MLAAS Toolkit is composed of three main components, each designed to tackle 
 
 2. **Exploratory Data Analysis (EDA) Toolkit**: This is a powerful tool for performing exploratory data analysis. It allows you to load and analyze datasets, generate plots for better understanding of the data, train machine learning models using different algorithms, and evaluate model performance with various metrics. The EDA Toolkit uses Streamlit, a powerful framework for building machine learning and data science web applications. Learn more about the EDA Toolkit [here](EDA/readme.md).
 
-3. **Recommendation Engine**: This engine uses machine learning algorithms to generate recommendations based on user input. It's a great tool for building recommendation systems, or for any application where you need to generate recommendations based on user behavior or preferences. Dive into the Recommendation Engine [here](recommendation/readme.md).
-
 Demo: version 1.3
 
 https://user-images.githubusercontent.com/58544477/232416229-4861127c-d464-4e3f-82ed-7d186b27eb18.MOV
+
+3. **Recommendation Engine**: This engine uses machine learning algorithms to generate recommendations based on user input. It's a great tool for building recommendation systems, or for any application where you need to generate recommendations based on user behavior or preferences. Dive into the Recommendation Engine [here](recommendation/readme.md).
+
+
 
 ## Getting Started
 
