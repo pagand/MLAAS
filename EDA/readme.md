@@ -1,8 +1,4 @@
-Version 1.2
-
-Here is the EDA/MLAAS for the data analysis using streamlit. 
-
-Instructions:
+Here is the code for the EDA/MLAAS Toolkit
 
 ### Setting ups the environment
 ```
